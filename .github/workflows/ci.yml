@@ -1,0 +1,37 @@
+name: Run Selenium Tests
+
+on:
+  push:
+    branches:
+      - main  # Trigger the pipeline when code is pushed to the `main` branch
+  pull_request:
+    branches:
+      - main  # Trigger the pipeline when a PR is created/updated to `main`
+  schedule:
+    - cron: '0 0 * * *'  # Run every day at midnight UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use Ubuntu as the environment, you can also use windows-latest
+
+    steps:
+    # Step 1: Checkout the repository code
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Step 2: Set up .NET Core SDK (Adjust version if needed)
+    - name: Set up .NET Core SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0'  # Ensure you're using the correct .NET version
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: |
+        dotnet restore  # Restore the project dependencies
+        dotnet build    # Build the project
+
+    # Step 4: Run tests with SpecFlow and NUnit
+    - name: Run tests
+      run: |
+        dotnet test --filter FullyQualifiedName~CalculatorStepDefinitions  # Run only tests related to the Calculator scenario (adjust filter if needed)
