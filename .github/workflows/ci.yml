@@ -19,8 +19,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Step 2: Install dependencies for OpenSSL (fixes dotnet restore issue)
-    - name: Install dependencies (libssl-dev)
+    # Step 2: Install OpenSSL dependencies (libssl-dev) for .NET
+    - name: Install OpenSSL (libssl-dev)
       run: |
         sudo apt-get update
         sudo apt-get install -y libssl-dev
