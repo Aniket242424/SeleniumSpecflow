@@ -19,11 +19,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Step 2: Install OpenSSL (libssl-dev) and other dependencies
+    # Step 2: Install OpenSSL (libssl-dev) and other dependencies for .NET Core
     - name: Install dependencies (libssl-dev and others)
       run: |
         sudo apt-get update
-        sudo apt-get install -y libssl-dev libcurl4-openssl-dev libxml2-dev
+        sudo apt-get install -y libssl-dev libcurl4-openssl-dev libxml2-dev \
+        && sudo apt-get install -y ca-certificates \
+        && sudo apt-get install -y curl \
+        && sudo apt-get install -y unzip \
+        && sudo apt-get install -y libgdiplus  # Needed for .NET Core on Linux
 
     # Step 3: Set up .NET Core SDK
     - name: Set up .NET Core SDK
