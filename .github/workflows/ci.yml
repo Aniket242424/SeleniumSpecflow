@@ -8,8 +8,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 0 * * *'  # Every day at midnight UTC
+  workflow_dispatch:     # 👈 Enables manual run button
 
 jobs:
   build:
@@ -35,6 +35,6 @@ jobs:
         dotnet restore
         dotnet build --no-restore
 
-    - name: Run tests
+    - name: Run all tests
       run: |
-        dotnet test --no-build --filter FullyQualifiedName~CalculatorStepDefinitions
+        dotnet test --no-build
