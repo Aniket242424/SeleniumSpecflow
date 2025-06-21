@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Install system dependencies
       run: |
@@ -55,12 +55,12 @@ jobs:
         dotnet test --no-build --logger "html;LogFileName=TestResults/TestReport.html"
 
     - name: Upload HTML Report as Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: SeleniumTestReport
         path: TestResults/TestReport.html
 
-    - name: Send Email with Test Report Link
+    - name: Send Email with HTML Report Attached
       if: always()
       uses: dawidd6/action-send-mail@v3
       with:
@@ -72,13 +72,13 @@ jobs:
         body: |
           Hello Team,
 
-          The Selenium test run on GitHub Actions has completed.
+          The Selenium tests have completed.
 
-          **Result:** ${{ job.status }}
-
-          📄 [Click here to download the HTML report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          ✅ Passed: All tests successful  
+          ❌ Failed: See attached report for details
 
           Regards,  
           GitHub Actions Bot
         to: amahangade24@gmail.com,shraddhamtoraskar202@gmail.com
         from: GitHub CI <${{ secrets.EMAIL_USERNAME }}>
+        attachments: TestResults/TestReport.html
