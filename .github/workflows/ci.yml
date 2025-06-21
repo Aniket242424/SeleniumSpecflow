@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 0 * * *'  # Daily at midnight
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -17,34 +17,34 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libssl3 libssl-dev libcurl4-openssl-dev libxml2-dev \
-          ca-certificates curl unzip libgdiplus wget gnupg
+        sudo apt-get install -y libssl3 libcurl4-openssl-dev libxml2-dev ca-certificates curl unzip libgdiplus wget gnupg
 
-    - name: Install Google Chrome v124
-      run: |
-        wget https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.119/linux64/chrome-linux64.zip
-        unzip chrome-linux64.zip
-        sudo mv chrome-linux64 /opt/chrome
-        sudo ln -sf /opt/chrome/chrome /usr/bin/google-chrome
-        google-chrome --version
+    - name: Install Google Chrome Stable
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: stable
 
-    - name: Install ChromeDriver v124
+    - name: Get Chrome version and install matching ChromeDriver
       run: |
-        wget https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.119/linux64/chromedriver-linux64.zip
-        unzip chromedriver-linux64.zip
+        CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+        echo "Chrome version: $CHROME_VERSION"
+        DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" \
+          | jq -r --arg ver "$CHROME_VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
+        wget -O chromedriver.zip "$DRIVER_VERSION"
+        unzip chromedriver.zip
         sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
         sudo chmod +x /usr/local/bin/chromedriver
         chromedriver --version
 
-    - name: Set up .NET SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
-    - name: Restore and build
+    - name: Restore and Build
       run: |
         dotnet restore
         dotnet build --no-restore
@@ -54,28 +54,25 @@ jobs:
         mkdir -p TestResults
         dotnet test --no-build --logger "html;LogFileName=TestResults/TestReport.html"
 
-    - name: Upload HTML Report as Artifact
+    - name: Upload HTML Report
       uses: actions/upload-artifact@v4
       with:
         name: SeleniumTestReport
         path: TestResults/TestReport.html
 
-    - name: Send Email with HTML Report Attached
-      if: always()
+    - name: Send Email with HTML Report if Tests Fail
+      if: failure()
       uses: dawidd6/action-send-mail@v3
       with:
         server_address: smtp.gmail.com
         server_port: 465
         username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: ${{ job.status == 'success' && '✅ Selenium Tests Passed' || '❌ Selenium Tests Failed' }}
+        subject: "❌ Selenium Tests Failed"
         body: |
           Hello Team,
 
-          The Selenium tests have completed.
-
-          ✅ Passed: All tests successful  
-          ❌ Failed: See attached report for details
+          The Selenium tests have failed. Please find the attached HTML report for details.
 
           Regards,  
           GitHub Actions Bot
