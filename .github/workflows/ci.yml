@@ -8,8 +8,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
-  workflow_dispatch:      # Allow manual trigger
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,13 +25,15 @@ jobs:
         sudo apt-get install -y libssl3 libssl-dev libcurl4-openssl-dev libxml2-dev \
           ca-certificates curl unzip libgdiplus wget gnupg
 
-    - name: Install Google Chrome v124 (stable for testing)
+    - name: Install Chrome v124 manually
       run: |
         wget https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.119/linux64/chrome-linux64.zip
         unzip chrome-linux64.zip
         sudo mv chrome-linux64 /opt/chrome
-        sudo ln -sf /opt/chrome/chrome /usr/bin/google-chrome
-        google-chrome --version
+        sudo ln -sf /opt/chrome/chrome /usr/local/bin/google-chrome
+        echo 'export PATH=/opt/chrome:$PATH' >> $GITHUB_ENV
+        echo 'CHROME_BIN=/opt/chrome/chrome' >> $GITHUB_ENV
+        /opt/chrome/chrome --version
 
     - name: Install ChromeDriver v124 (matches Chrome v124)
       run: |
