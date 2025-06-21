@@ -2,13 +2,11 @@ name: Run Selenium Tests
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # Daily at midnight
   workflow_dispatch:
 
 jobs:
@@ -25,17 +23,15 @@ jobs:
         sudo apt-get install -y libssl3 libssl-dev libcurl4-openssl-dev libxml2-dev \
           ca-certificates curl unzip libgdiplus wget gnupg
 
-    - name: Install Chrome v124 manually
+    - name: Install Google Chrome v124
       run: |
         wget https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.119/linux64/chrome-linux64.zip
         unzip chrome-linux64.zip
         sudo mv chrome-linux64 /opt/chrome
-        sudo ln -sf /opt/chrome/chrome /usr/local/bin/google-chrome
-        echo 'export PATH=/opt/chrome:$PATH' >> $GITHUB_ENV
-        echo 'CHROME_BIN=/opt/chrome/chrome' >> $GITHUB_ENV
-        /opt/chrome/chrome --version
+        sudo ln -sf /opt/chrome/chrome /usr/bin/google-chrome
+        google-chrome --version
 
-    - name: Install ChromeDriver v124 (matches Chrome v124)
+    - name: Install ChromeDriver v124
       run: |
         wget https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.119/linux64/chromedriver-linux64.zip
         unzip chromedriver-linux64.zip
@@ -43,7 +39,7 @@ jobs:
         sudo chmod +x /usr/local/bin/chromedriver
         chromedriver --version
 
-    - name: Set up .NET SDK (8.0)
+    - name: Set up .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
@@ -53,6 +49,36 @@ jobs:
         dotnet restore
         dotnet build --no-restore
 
-    - name: Run all tests
+    - name: Run Tests and Generate HTML Report
       run: |
-        dotnet test --no-build
+        mkdir -p TestResults
+        dotnet test --no-build --logger "html;LogFileName=TestResults/TestReport.html"
+
+    - name: Upload HTML Report as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: SeleniumTestReport
+        path: TestResults/TestReport.html
+
+    - name: Send Email with Test Report Link
+      if: always()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: ${{ job.status == 'success' && '✅ Selenium Tests Passed' || '❌ Selenium Tests Failed' }}
+        body: |
+          Hello Team,
+
+          The Selenium test run on GitHub Actions has completed.
+
+          **Result:** ${{ job.status }}
+
+          📄 [Click here to download the HTML report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          Regards,  
+          GitHub Actions Bot
+        to: amahangade24@gmail.com,shraddhamtoraskar202@gmail.com
+        from: GitHub CI <${{ secrets.EMAIL_USERNAME }}>
