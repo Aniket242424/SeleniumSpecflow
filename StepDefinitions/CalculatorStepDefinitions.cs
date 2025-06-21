@@ -8,11 +8,14 @@ namespace ReqnrollProject1.StepDefinitions
     [Binding]
     public sealed class CalculatorStepDefinitions
     {
-        private IWebDriver? driver;
+        private IWebDriver driver = new ChromeDriver();
+
         // Before each scenario, instantiate the WebDriver
         [BeforeScenario]
         public void BeforeScenario()
         {
+            // Replace existing driver with a new one if needed
+            driver.Quit();  // Clean up if already initialized
             driver = new ChromeDriver();  // Initialize WebDriver
         }
 
