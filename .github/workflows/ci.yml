@@ -8,8 +8,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'  # Every day at midnight UTC
-  workflow_dispatch:     # 👈 Enables manual run button
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,21 +19,29 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libssl3 libssl-dev libcurl4-openssl-dev libxml2-dev \
-          ca-certificates curl unzip libgdiplus wget gnupg
-
     - name: Install Google Chrome
       run: |
         wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
         sudo apt install -y ./google-chrome-stable_current_amd64.deb
+        google-chrome --version
 
-    - name: Setup ChromeDriver
-      uses: nanasess/setup-chromedriver@v2
-      with:
-        chromedriver-version: 'latest'
+    - name: Install ChromeDriver matching Chrome version
+      run: |
+        CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+        echo "Installed Chrome version: $CHROME_VERSION"
+        CHROMEDRIVER_VERSION=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+        echo "Matching ChromeDriver version: $CHROMEDRIVER_VERSION"
+        wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
+        unzip chromedriver_linux64.zip
+        sudo mv chromedriver /usr/local/bin/chromedriver
+        sudo chmod +x /usr/local/bin/chromedriver
+        chromedriver --version
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libssl3 libssl-dev libcurl4-openssl-dev libxml2-dev \
+          ca-certificates curl unzip libgdiplus
 
     - name: Set up .NET SDK (8.0)
       uses: actions/setup-dotnet@v3
