@@ -9,7 +9,7 @@ on:
       - main
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch:   # 👈 This enables manual triggering
+  workflow_dispatch:   # 👈 This enables the "Run workflow" button
 
 jobs:
   build:
@@ -19,22 +19,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install dependencies (libssl-dev and others)
+    - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libssl-dev libcurl4-openssl-dev libxml2-dev \
-        ca-certificates curl unzip libgdiplus
+        sudo apt-get install -y libssl3 libssl-dev libcurl4-openssl-dev libxml2-dev \
+          ca-certificates curl unzip libgdiplus
 
-    - name: Set up .NET Core SDK
-      uses: actions/setup-dotnet@v1
+    - name: Set up .NET SDK (upgrade to 6.0)
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '5.0'
+        dotnet-version: '6.0.x'  # LTS version, supported and stable
 
-    - name: Install dependencies
+    - name: Restore and build
       run: |
         dotnet restore
-        dotnet build
+        dotnet build --no-restore
 
     - name: Run tests
       run: |
-        dotnet test --filter FullyQualifiedName~CalculatorStepDefinitions
+        dotnet test --no-build --filter FullyQualifiedName~CalculatorStepDefinitions
