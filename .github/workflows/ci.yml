@@ -3,45 +3,38 @@ name: Run Selenium Tests
 on:
   push:
     branches:
-      - main  # Trigger the pipeline on push to the `main` branch
+      - main
   pull_request:
     branches:
-      - main  # Trigger the pipeline on PR to the `main` branch
+      - main
   schedule:
-    - cron: '0 0 * * *'  # Schedule to run every day at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:   # 👈 This enables manual triggering
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use Ubuntu for the test environment
+    runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the code from the repository
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Step 2: Install OpenSSL (libssl-dev) and other dependencies for .NET Core
     - name: Install dependencies (libssl-dev and others)
       run: |
         sudo apt-get update
         sudo apt-get install -y libssl-dev libcurl4-openssl-dev libxml2-dev \
-        && sudo apt-get install -y ca-certificates \
-        && sudo apt-get install -y curl \
-        && sudo apt-get install -y unzip \
-        && sudo apt-get install -y libgdiplus  # Needed for .NET Core on Linux
+        ca-certificates curl unzip libgdiplus
 
-    # Step 3: Set up .NET Core SDK
     - name: Set up .NET Core SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0'  # Ensure .NET version is compatible with your project
+        dotnet-version: '5.0'
 
-    # Step 4: Install dependencies and build the project
     - name: Install dependencies
       run: |
-        dotnet restore  # Restore dependencies
-        dotnet build    # Build the project
+        dotnet restore
+        dotnet build
 
-    # Step 5: Run the tests
     - name: Run tests
       run: |
-        dotnet test --filter FullyQualifiedName~CalculatorStepDefinitions  # Run only the Calculator tests
+        dotnet test --filter FullyQualifiedName~CalculatorStepDefinitions
