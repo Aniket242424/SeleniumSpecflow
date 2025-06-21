@@ -9,7 +9,7 @@ on:
       - main
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch:   # 👈 This enables the "Run workflow" button
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,10 +25,10 @@ jobs:
         sudo apt-get install -y libssl3 libssl-dev libcurl4-openssl-dev libxml2-dev \
           ca-certificates curl unzip libgdiplus
 
-    - name: Set up .NET SDK (upgrade to 6.0)
+    - name: Set up .NET SDK (8.0)
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'  # LTS version, supported and stable
+        dotnet-version: '8.0.x'
 
     - name: Restore and build
       run: |
