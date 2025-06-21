@@ -20,14 +20,15 @@ namespace ReqnrollProject1.StepDefinitions
             options.AddArgument("--headless"); // Headless for CI
             options.AddArgument("--no-sandbox");
             options.AddArgument("--disable-dev-shm-usage");
-
-            driver = new ChromeDriver(options); // No path passed — uses GitHub-installed chromedriver
+            // ✅ Explicitly use manually installed ChromeDriver to avoid Selenium Manager
+            var service = ChromeDriverService.CreateDefaultService("/usr/local/bin");
+            driver = new ChromeDriver(service, options); //— uses GitHub-installed chromedriver
         }
 
         [AfterScenario]
         public void AfterScenario()
         {
-            driver.Quit();
+            driver?.Quit();
         }
 
         [Given("the first number is {int}")]
