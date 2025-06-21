@@ -106,3 +106,4 @@ C:\Users\Aniket\source\repos\SeleniumSpecflow\ReqnrollProject1\obj\Debug\net8.0\
 C:\Users\Aniket\source\repos\SeleniumSpecflow\ReqnrollProject1\obj\Debug\net8.0\ReqnrollProject1.genruntimeconfig.cache
 C:\Users\Aniket\source\repos\SeleniumSpecflow\ReqnrollProject1\obj\Debug\net8.0\ref\ReqnrollProject1.dll
 C:\Users\Aniket\source\repos\SeleniumSpecflow\ReqnrollProject1\bin\Debug\net8.0\Reqnroll.NUnit.ReqnrollPlugin.dll
+C:\Users\Aniket\source\repos\SeleniumSpecflow\ReqnrollProject1\obj\Debug\net8.0\ReqnrollProject1.sourcelink.json
