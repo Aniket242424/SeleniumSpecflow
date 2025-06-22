@@ -1,4 +1,4 @@
-name: Run Selenium Tests
+name: Run Selenium Tests Email
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 0 * * *'  # daily at midnight
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libssl3 libcurl4-openssl-dev libxml2-dev ca-certificates curl unzip libgdiplus wget jq gnupg
+        sudo apt-get install -y libssl3 libcurl4-openssl-dev libxml2-dev ca-certificates curl unzip libgdiplus wget gnupg jq
 
     - name: Install Google Chrome Stable
       uses: browser-actions/setup-chrome@v1
@@ -32,7 +32,7 @@ jobs:
         CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
         echo "Chrome version: $CHROME_VERSION"
         DRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" \
-          | jq -r --arg ver "$CHROME_VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
+          | jq -r '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
         wget -O chromedriver.zip "$DRIVER_URL"
         unzip chromedriver.zip
         sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
@@ -52,10 +52,9 @@ jobs:
     - name: Run Tests and Generate HTML Report
       run: |
         mkdir -p TestResults
-        dotnet test --no-build --logger "html;LogFileName=TestResults/TestReport.html"
+        dotnet test --no-build --logger "html;LogFileName=TestReport.html" --results-directory TestResults
 
     - name: Upload HTML Report
-      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: SeleniumTestReport
@@ -73,7 +72,7 @@ jobs:
         body: |
           Hello Team,
 
-          The Selenium tests failed in the latest CI run. Please find the attached HTML test report.
+          The Selenium tests have failed. Please find the attached HTML report for details.
 
           Regards,  
           GitHub Actions Bot
