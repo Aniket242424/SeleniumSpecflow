@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libssl3 libcurl4-openssl-dev libxml2-dev ca-certificates curl unzip libgdiplus wget gnupg
+        sudo apt-get install -y libssl3 libcurl4-openssl-dev libxml2-dev ca-certificates curl unzip libgdiplus wget gnupg jq
 
     - name: Install Google Chrome Stable
       uses: browser-actions/setup-chrome@v1
@@ -31,9 +31,9 @@ jobs:
       run: |
         CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
         echo "Chrome version: $CHROME_VERSION"
-        DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" \
-          | jq -r --arg ver "$CHROME_VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
-        wget -O chromedriver.zip "$DRIVER_VERSION"
+        DRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" \
+          | jq -r '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
+        wget -O chromedriver.zip "$DRIVER_URL"
         unzip chromedriver.zip
         sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
         sudo chmod +x /usr/local/bin/chromedriver
@@ -51,9 +51,8 @@ jobs:
 
     - name: Run Tests and Generate HTML Report
       run: |
-        mkdir -p ./TestResults
-        dotnet test --no-build --logger "html;LogFileName=./TestResults/TestReport.html"
-
+        mkdir -p TestResults
+        dotnet test --no-build --logger "html;LogFileName=TestReport.html" --results-directory TestResults
 
     - name: Upload HTML Report
       uses: actions/upload-artifact@v4
