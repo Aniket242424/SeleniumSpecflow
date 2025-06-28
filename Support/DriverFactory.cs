@@ -13,6 +13,12 @@ namespace ReqnrollProject1.Support
             {
                 options.AddArgument("--headless");
                 options.AddArgument("--no-sandbox");
+            }
+
+            if (Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true")
+            {
+                options.AddArgument($"--user-data-dir=/tmp/profile-{Guid.NewGuid()}");
+                options.AddArgument("--no-sandbox");
                 options.AddArgument("--disable-dev-shm-usage");
             }
 
