@@ -43,5 +43,38 @@ namespace ReqnrollProject1.Support
                 return elements.Count > 0 ? elements : null;
             });
         }
+
+
+
+    }
+
+
+    public static class WebDriverExtensions
+    {
+        public static void JsClick(this IWebDriver driver, IWebElement element)
+        {
+            if (driver is IJavaScriptExecutor js)
+            {
+                js.ExecuteScript("arguments[0].click();", element);
+            }
+            else
+            {
+                throw new InvalidOperationException("Driver does not support JavaScript execution.");
+            }
+        }
+
+        public static void SafeClick(this IWebDriver driver, By by)
+        {
+            try
+            {
+                driver.FindElement(by).Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                driver.JsClick(driver.FindElement(by));
+            }
+        }
+
+
     }
 }

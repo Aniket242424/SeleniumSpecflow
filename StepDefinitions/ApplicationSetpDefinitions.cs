@@ -94,6 +94,9 @@ namespace ReqnrollProject1.StepDefinitions
             bool isVisible = packageListPage.IsPackagePresent(packageName);
             Assert.IsTrue(isVisible, $"Package '{packageName}' was not found in the package list.");
 
+            //archieve the package
+            packageListPage.Archieve(packageName);
+
         }
 
 
