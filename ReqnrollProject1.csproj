@@ -7,19 +7,33 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="Reqnroll" Version="2.4.1" />
     <PackageReference Include="nunit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Reqnroll.NUnit" Version="2.4.1" />
     <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.4.1" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Selenium.Support" Version="4.33.0" />
     <PackageReference Include="Selenium.WebDriver" Version="4.33.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Drivers\" />
-    <Folder Include="Support\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Support\Payloads\CreatePackage.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Support\Payloads\CreatePackageTemplate.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
