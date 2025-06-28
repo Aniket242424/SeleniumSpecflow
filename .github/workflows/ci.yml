@@ -69,6 +69,13 @@ jobs:
         name: SeleniumTestReport
         path: TestResults/TestReport.html
 
+    - name: Upload Screenshots on Failure
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: FailedTestScreenshots
+        path: Screenshots
+
     - name: Send Email with HTML Report if Tests Fail
       if: failure()
       uses: dawidd6/action-send-mail@v3
