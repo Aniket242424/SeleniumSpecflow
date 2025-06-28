@@ -1,4 +1,4 @@
-name: Run Selenium Tests working
+name: Run Selenium Tests Working
 
 on:
   push:
@@ -49,10 +49,14 @@ jobs:
         dotnet restore
         dotnet build --no-restore
 
+    - name: Make selenium-manager executable
+      run: |
+        find ./bin/Debug -type f -name selenium-manager -exec chmod +x {} \;
+
     - name: Run Tests and Generate HTML Report
       run: |
         mkdir -p TestResults
-        dotnet test --no-build --logger "html;LogFileName=TestReport.html" --results-directory TestResults
+        dotnet test --no-build --logger "html;LogFileName=TestReport.html" --results-directory TestResults --verbosity normal
 
     - name: Upload HTML Report
       uses: actions/upload-artifact@v4
@@ -63,19 +67,3 @@ jobs:
     - name: Send Email with HTML Report if Tests Fail
       if: failure()
       uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "❌ Selenium Tests Failed"
-        body: |
-          Hello Team,
-
-          The Selenium tests have failed. Please find the attached HTML report for details.
-
-          Regards,  
-          GitHub Actions Bot
-        to: amahangade24@gmail.com,shraddhamtoraskar202@gmail.com
-        from: GitHub CI <${{ secrets.EMAIL_USERNAME }}>
-        attachments: TestResults/TestReport.html
