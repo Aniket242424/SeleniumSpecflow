@@ -78,7 +78,7 @@ namespace ReqnrollProject1.StepDefinitions
     $"API call failed. Status: {response.StatusCode}, Response: {response.Content}");
 
 
-            var responseJson = JObject.Parse(response.Content);
+           // var responseJson = JObject.Parse(response.Content);
 
         }
 
@@ -88,6 +88,8 @@ namespace ReqnrollProject1.StepDefinitions
             var packageListPage = new PackageListPage(_driver);
             var packageName = _context["CreatedPackageName"].ToString();
             // Optional: packageListPage.SearchForPackage(packageName);
+            if (string.IsNullOrEmpty(packageName))
+                throw new ArgumentNullException(nameof(packageName), "Package name cannot be null or empty.");
 
             bool isVisible = packageListPage.IsPackagePresent(packageName);
             Assert.IsTrue(isVisible, $"Package '{packageName}' was not found in the package list.");

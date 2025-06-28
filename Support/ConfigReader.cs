@@ -19,8 +19,26 @@ namespace ReqnrollProject1.Support
             config = builder.Build();
         }
 
-        public static string Get(string key) => config[key];
-        public static string GetSection(string section, string key) => config.GetSection(section)[key];
+        public static string Get(string key)
+        {
+            var value = config[key];
+            if (string.IsNullOrEmpty(value))
+                throw new InvalidOperationException($"Configuration value for key '{key}' is missing or null.");
 
+            return value;
+        }
+
+        public static string GetSection(string section, string key)
+        {
+            var sectionConfig = config.GetSection(section);
+            if (!sectionConfig.Exists())
+                throw new InvalidOperationException($"Configuration section '{section}' does not exist.");
+
+            var value = sectionConfig[key];
+            if (string.IsNullOrEmpty(value))
+                throw new InvalidOperationException($"Configuration value for section '{section}' and key '{key}' is missing or null.");
+
+            return value;
+        }
     }
 }
